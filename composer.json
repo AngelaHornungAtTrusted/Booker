@@ -1,0 +1,20 @@
+{
+    "name": "angelahornung/booker",
+    "description": "An event and registration management system for Wordpress",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Util\\": "Util/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Angela Hornung",
+            "email": "angela@trustedtechsupport.com"
+        }
+    ],
+    "require": {
+        "ext-mysqli": "*"
+    }
+}
