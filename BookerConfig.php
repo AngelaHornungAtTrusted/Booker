@@ -25,22 +25,40 @@ define('BR_DB_PREFIX', 'br_');
 
 //data constants
 define('BR_POST_TYPE_ARGS', array(
-    'labels' => array('name' => 'Products', 'singular_name' => 'Product', 'menu_name' => 'Products', 'add_new' => 'Add New Product', 'add_new_item' => 'Add New Product', 'new_item' => 'New Product', 'edit_item' => 'Edit Product', 'view_item' => 'View Product', 'all_items' => 'All Products'),
+    'labels' => array('name' => 'Events', 'singular_name' => 'Event', 'menu_name' => 'Events', 'add_new' => 'Plan An Event', 'add_new_item' => 'Plan An Event', 'new_item' => 'New Event', 'edit_item' => 'Edit Event', 'view_item' => 'View Event', 'all_items' => 'All Events'),
     'public' => true,
     'has_archive' => true,
     'show_in_rest' => true,
     'suBRorts' => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'page-attributes')
 ));
-define('BR_POST_REGION_TAXONOMY_ARGS', array(
-    'labels' => array('name' => 'Regions', 'singular_name' => 'Region', 'menu_name' => 'Regions', 'add_new' => 'Add New Region', 'add_new_item' => 'Add New Region', 'new_item' => 'New Region', 'edit_item' => 'Edit Region', 'view_item' => 'View Region', 'all_items' => 'All Regions'),
+define('BR_POST_LOCATION_TAXONOMY_ARGS', array(
+    'labels' => array('name' => 'Locations', 'singular_name' => 'Location', 'menu_name' => 'Locations', 'add_new' => 'Add New Location', 'add_new_item' => 'Add New Location', 'new_item' => 'New Location', 'edit_item' => 'Edit Location', 'view_item' => 'View Location', 'all_items' => 'All Locations'),
     'hierarchical' => true,
-    'rewrite' => array('slug' => 'region'),
+    'rewrite' => array('slug' => 'location'),
+    'show_in_rest' => true,
+));
+define('BR_POST_TYPE_TAXONOMY_ARGS', array(
+    'labels' => array('name' => 'Type', 'singular_name' => 'Type', 'menu_name' => 'Type', 'add_new' => 'Add New Type', 'add_new_item' => 'Add New Type', 'new_item' => 'New Type', 'edit_item' => 'Edit Type', 'view_item' => 'View Type', 'all_items' => 'All Type'),
+    'hierarchical' => true,
+    'rewrite' => array('slug' => 'type'),
+    'show_in_rest' => true,
+));
+define('BR_POST_DATE_TAXONOMY_ARGS', array(
+    'labels' => array('name' => 'Dates', 'singular_name' => 'Date', 'menu_name' => 'Type', 'add_new' => 'Add New Date', 'add_new_item' => 'Add New Date', 'new_item' => 'New Date', 'edit_item' => 'Edit Date', 'view_item' => 'View Date', 'all_items' => 'All Dates'),
+    'hierarchical' => true,
+    'rewrite' => array('slug' => 'date'),
+    'show_in_rest' => true,
+));
+define('BR_POST_CATEGORY_TAXONOMY_ARGS', array(
+    'labels' => array('name' => 'Categories', 'singular_name' => 'Category', 'menu_name' => 'Type', 'add_new' => 'Add New Category', 'add_new_item' => 'Add New Category', 'new_item' => 'New Category', 'edit_item' => 'Edit Category', 'view_item' => 'View Category', 'all_items' => 'All Categories'),
+    'hierarchical' => true,
+    'rewrite' => array('slug' => 'category'),
     'show_in_rest' => true,
 ));
 
 //options
 define('BR_OPTIONS', array(
-    0 => array('option_name' => 'ProductPortfolioRegionLabel', 'option_value' => 'Region'),
-    1 => array('option_name' => 'ProductPortfolioTypeLabel', 'option_value' => 'Type'),
-    2 => array('option_name' => 'ProductPortfolioBrandLabel', 'option_value' => 'Brand'),
+    0 => array('option_name' => 'BookerLabelLocation', 'option_value' => 'Location'),
+    1 => array('option_name' => 'BookerLabelType', 'option_value' => 'Type'),
+    2 => array('option_name' => 'BookerLabelDate', 'option_value' => 'Date'),
 ));
