@@ -1,12 +1,12 @@
 <?php
-function wp_ajax_br_init($options): bool
+function wp_ajax_br_init_options($options): bool
 {
     global $wpdb;
 
     try {
         //can't find one, insert it
         foreach ($options as $option) {
-            if (sizeof($wpdb->get_results("SELECT * FROM " .$wpdb->prefix . "options WHERE option_name = '" . $option['option_name'] . "'")) < 1) {
+            if (sizeof($wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "options WHERE option_name = '" . $option['option_name'] . "'")) < 1) {
                 $wpdb->insert(
                     $wpdb->prefix . 'options',
                     array(
@@ -18,6 +18,34 @@ function wp_ajax_br_init($options): bool
         }
 
     } catch (Exception $e) {
+        return false;
+    }
+
+    return true;
+}
+
+function wp_ajax_br_init_registrations()
+{
+    global $wpdb;
+
+    try {
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $itemTables = "CREATE TABLE booker_registrations (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        fname varchar(255) DEFAULT '' NOT NULL,
+        lname varchar(255) DEFAULT '' NOT NULL,
+        pcount mediumint(9) NOT NULL,
+        email varchar(255) DEFAULT '' NOT NULL,
+        pnumber mediumint(9) NOT NULL,
+        approved tinyint(1) NOT NULL DEFAULT '0',
+        create_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+        update_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+        PRIMARY KEY (id)) $charset_collate;";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($itemTables);
+    } catch (exception $e) {
         return false;
     }
 
@@ -51,7 +79,7 @@ function wp_ajax_br_update_labels()
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         try {
-            $option_name = (intval($_POST['data']['type']) === 1) ? 'BookerLabelLocationLabel' : ((intval($_POST['data']['type']) === 2) ? 'BookerLabelTypeLabel' : 'BookerLabelDateLabel');
+            $option_name = (intval($_POST['data']['type']) === 1) ? 'BookerLabelLocation' : ((intval($_POST['data']['type']) === 2) ? 'BookerLabelType' : 'BookerLabelDate');
 
             $wpdb->update($wpdb->prefix . "options", array(
                 'option_value' => sanitize_text_field($_POST['data']['content']),
@@ -146,6 +174,37 @@ function wp_ajax_br_get_events()
         $response->code = 400;
         $response->status = 'error';
         $response->message = "Method not allowed";
+    }
+
+    wp_send_json($response);
+}
+
+function wp_ajax_br_registration()
+{
+    global $wpdb;
+    $response = new stdClass();
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        var_dump($_POST['data']);
+        die();
+    } else {
+        $response->code = 400;
+        $response->message = "Invalid Request";
+    }
+
+    wp_send_json($response);
+}
+
+function wp_ajax_br_get_registrations()
+{
+    global $wpdb;
+    $response = new stdClass();
+
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+
+    } else {
+        $response->code = 400;
+        $response->message = "Invalid Request";
     }
 
     wp_send_json($response);

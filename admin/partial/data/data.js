@@ -4,8 +4,8 @@
     let type;
     const pageInit = function () {
         //init elements
-        //iButton = $('#pp-import-button');
-        //eButton = $('#pp-export-button');
+        //iButton = $('#br-import-button');
+        //eButton = $('#br-export-button');
         lLabel = $('#location-label');
         tLabel = $('#type-label');
         dLabel = $('#date-label');
@@ -17,8 +17,8 @@
     }
 
     const getLabels = function () {
-        $.get(PP_AJAX_URL, {
-            action: 'pp_get_labels',
+        $.get(BR_AJAX_URL, {
+            action: 'br_get_labels',
         }, function (response) {
             if (response.status === 'success') {
                 console.log(response.data);
@@ -35,9 +35,9 @@
         dLabel.val(data[2].option_value);
 
         $('.label-input').on('change', function (e) {
-            type = ((e.currentTarget.id.split('-')[0] === 'region') ? 1 : (e.currentTarget.id.split('-')[0] === 'type') ? 2 : 3);
-            $.post(PP_AJAX_URL, {
-                action: 'pp_update_labels',
+            type = ((e.currentTarget.id.split('-')[0] === 'location') ? 1 : (e.currentTarget.id.split('-')[0] === 'type') ? 2 : 3);
+            $.post(BR_AJAX_URL, {
+                action: 'br_update_labels',
                 data: {
                     type: type,
                     content: e.currentTarget.value
@@ -62,8 +62,8 @@
                     let data = e.target.result;
 
                     //send to server once data's compiled
-                    $.post(PP_AJAX_URL, {
-                        action: "pp_import_data",
+                    $.post(br_AJAX_URL, {
+                        action: "br_import_data",
                         data: {
                             'importValues': data
                         }
@@ -82,8 +82,8 @@
     }
 
     const exportData = function () {
-        $.get(PP_AJAX_URL, {
-            action: "pp_export_data",
+        $.get(BR_AJAX_URL, {
+            action: "br_export_data",
         }, function (response) {
             if (response.status === 'success') {
                 toastr.success(response.message);

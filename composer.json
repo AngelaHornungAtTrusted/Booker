@@ -5,7 +5,8 @@
     "license": "proprietary",
     "autoload": {
         "psr-4": {
-            "Util\\": "Util/"
+            "Util\\": "util/",
+            "Node\\": "node_modules/"
         }
     },
     "authors": [

@@ -25,10 +25,10 @@
     </div>
     <div class="tab-pane fade" id="data" role="tabpanel" aria-labelledby="data-tab">
         <?php include( plugin_dir_path( __FILE__ ) . 'partial/data/data.php' ); ?>
-        <?php wp_enqueue_script('data-js', PP_ADMIN_URL . '/partial/data/data.js"', array('jquery')); ?>
+        <?php wp_enqueue_script('data-js', BR_ADMIN_URL . '/partial/data/data.js"', array('jquery')); ?>
     </div>
     <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
         <?php include( plugin_dir_path( __FILE__ ) . 'partial/contact/contact.php' ); ?>
-        <?php wp_enqueue_script('contact-js', PP_ADMIN_URL . '/partial/contact/contact.js', array('jquery')); ?>
+        <?php wp_enqueue_script('contact-js', BR_ADMIN_URL . '/partial/contact/contact.js', array('jquery')); ?>
     </div>
 </div>
