@@ -45,12 +45,12 @@ define('BR_POST_TYPE_TAXONOMY_ARGS', array(
     'rewrite' => array('slug' => 'type'),
     'show_in_rest' => true,
 ));
-define('BR_POST_DATE_TAXONOMY_ARGS', array(
+/*define('BR_POST_DATE_TAXONOMY_ARGS', array(
     'labels' => array('name' => 'Dates', 'singular_name' => 'Date', 'menu_name' => 'Date', 'add_new' => 'Add New Date', 'add_new_item' => 'Add New Date', 'new_item' => 'New Date', 'edit_item' => 'Edit Date', 'view_item' => 'View Date', 'all_items' => 'All Dates'),
     'hierarchical' => true,
     'rewrite' => array('slug' => 'date'),
     'show_in_rest' => true,
-));
+));*/
 define('BR_POST_CATEGORY_TAXONOMY_ARGS', array(
     'labels' => array('name' => 'Categories', 'singular_name' => 'Category', 'menu_name' => 'Category', 'add_new' => 'Add New Category', 'add_new_item' => 'Add New Category', 'new_item' => 'New Category', 'edit_item' => 'Edit Category', 'view_item' => 'View Category', 'all_items' => 'All Categories'),
     'hierarchical' => true,

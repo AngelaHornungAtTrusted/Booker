@@ -105,6 +105,7 @@ function wp_ajax_br_update_labels()
 
 function wp_ajax_br_get_events()
 {
+    //** todo find better way of doing this */
     $response = new stdClass();
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         global $wpdb;
@@ -112,7 +113,7 @@ function wp_ajax_br_get_events()
         try {
             $times = 0;
             $conditional = "";
-            $conditions = array(intval($_GET['data']['location']), intval($_GET['data']['type']), intval($_GET['data']['date']), intval($_GET['data']['category']));
+            $conditions = array(intval($_GET['data']['location'])/*, intval($_GET['data']['type'])*/, intval($_GET['data']['date']), intval($_GET['data']['category']));
             foreach ($conditions as $condition) {
                 if (intval($condition) > 0) {
                     $conditional .= ((strlen($conditional) > 0) ? " OR " : " WHERE ") . "term_taxonomy_id = " . intval($condition);
@@ -124,19 +125,13 @@ function wp_ajax_br_get_events()
             $pFilter = array();
 
             //set data property & grab every relationship that has an association of one of the three filters
-            $posts = array();
-            $filters = array();
-            $thumbnails = array();
+            $posts = array();       //item itself
+            $filters = array();     //possible options for further refining
+            $thumbnails = array();  //item thumbnails
             $relationships = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "term_relationships" . $conditional);
 
             foreach ($relationships as $relationship) {
-                $post = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts" . " LEFT JOIN " . $wpdb->prefix . "postmeta" . " ON " . $wpdb->prefix . "postmeta" . ".post_id = " . $wpdb->prefix . "posts" . ".id WHERE post_type = 'event' AND post_status = 'publish' AND meta_key = '_thumbnail_id' AND id = " . intval($relationship->object_id) . " ORDER BY id DESC");
-
-                //ordered should appear first, hence the default of 1000 for non-ordered items
-                if (isset($post[0]->menu_order) && $post[0]->menu_order < 1) {
-                    //todo find scalable and more elegant manner of setting ordered items to appear before unordered items
-                    $post[0]->menu_order = 1000;
-                }
+                $post = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts" . " LEFT JOIN " . $wpdb->prefix . "postmeta" . " ON " . $wpdb->prefix . "postmeta" . ".post_id = " . $wpdb->prefix . "posts" . ".id WHERE post_type = 'event' AND post_status = 'publish' AND meta_key = '_thumbnail_id' AND id = " . intval($relationship->object_id));
 
                 //must have same relationship quantity as filters not 0
                 if (sizeof($post) > 0 && !in_array($post, $posts)) {
@@ -158,13 +153,8 @@ function wp_ajax_br_get_events()
                 }
             }
 
-            //organize posts
-            usort($posts, function ($a, $b) {
-                return ($a[0]->menu_order > $b[0]->menu_order) ? 1 : (($a[0]->menu_order < $b[0]->menu_order) ? -1 : 0);
-            });
-
             $response->data = [$posts, $thumbnails, $filters];
-            $response->message = "Got Products";
+            $response->message = "Got Events";
             $response->status = 'success';
         } catch (\Exception $e) {
             $response->status = 'error';
