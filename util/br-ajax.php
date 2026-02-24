@@ -105,15 +105,20 @@ function wp_ajax_br_update_labels()
 
 function wp_ajax_br_get_events()
 {
-    //** todo find better way of doing this */
     $response = new stdClass();
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         global $wpdb;
 
         try {
+            //return data
+            $posts = array();
+            $filters = array();
+            $thumbnails = array();
+
+            //todo remove need for $times variable
             $times = 0;
             $conditional = "";
-            $conditions = array(intval($_GET['data']['location'])/*, intval($_GET['data']['type'])*/, intval($_GET['data']['date']), intval($_GET['data']['category']));
+            $conditions = array(intval($_GET['data']['location']), intval($_GET['data']['type']), intval($_GET['data']['category']));
             foreach ($conditions as $condition) {
                 if (intval($condition) > 0) {
                     $conditional .= ((strlen($conditional) > 0) ? " OR " : " WHERE ") . "term_taxonomy_id = " . intval($condition);
@@ -121,28 +126,14 @@ function wp_ajax_br_get_events()
                 }
             }
 
-            //set association barrier
-            $pFilter = array();
-
-            //set data property & grab every relationship that has an association of one of the three filters
-            $posts = array();       //item itself
-            $filters = array();     //possible options for further refining
-            $thumbnails = array();  //item thumbnails
-            $relationships = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "term_relationships" . $conditional);
-
-            foreach ($relationships as $relationship) {
-                $post = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts" . " LEFT JOIN " . $wpdb->prefix . "postmeta" . " ON " . $wpdb->prefix . "postmeta" . ".post_id = " . $wpdb->prefix . "posts" . ".id WHERE post_type = 'event' AND post_status = 'publish' AND meta_key = '_thumbnail_id' AND id = " . intval($relationship->object_id));
-
-                //must have same relationship quantity as filters not 0
-                if (sizeof($post) > 0 && !in_array($post, $posts)) {
-                    //filter products to ensure multiple associations if selected by the user
-                    $pFilter[] = $post;
-
-                    if (count(array_keys($pFilter, $post)) >= $times) {
-                        $posts[] = $post;
-                        $thumbnails[] = get_site_url() . '/wp-content/uploads/' . $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "postmeta" . " WHERE meta_key = '_wp_attached_file' AND post_id = " . intval($post[0]->meta_value))[0]->meta_value;
-
-                        foreach ($wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "term_relationships WHERE " . $wpdb->prefix . "term_relationships.object_id = " . $post[0]->ID) as $taxId) {
+            //todo format posted dates from js then run comparison, if date values are 0 (set them to this by default), then only load events today and after
+            foreach (array_count_values(array_column($wpdb->get_results("SELECT object_id FROM " . $wpdb->prefix . "term_relationships" . $conditional), 'object_id')) as $key => $count) {
+                if ($count >= $times && sizeof($wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts WHERE post_type = 'event' AND post_status = 'publish' AND id = " . intval($key))) > 0) {
+                    $date = date($wpdb->get_results("SELECT meta_value FROM " . $wpdb->prefix . "postmeta WHERE post_id = " . intval($key) . " AND meta_key = 'booker-event-meta-date'")[0]->meta_value);
+                    if ($date >= date($_GET['data']['sDate']) && $date <= date($_GET['data']['eDate'])) {
+                        $posts[$key] = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts" . " LEFT JOIN " . $wpdb->prefix . "postmeta" . " ON " . $wpdb->prefix . "postmeta" . ".post_id = " . $wpdb->prefix . "posts" . ".id WHERE post_type = 'event' AND post_status = 'publish' AND meta_key = '_thumbnail_id' AND id = " . intval($key));
+                        $thumbnails[$key] = get_site_url() . '/wp-content/uploads/' . $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "postmeta" . " WHERE meta_key = '_wp_attached_file' AND post_id = " . intval($posts[$key][0]->meta_value))[0]->meta_value;
+                        foreach ($wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "term_relationships WHERE " . $wpdb->prefix . "term_relationships.object_id = " . intval($key)) as $taxId) {
                             $term = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "term_taxonomy" . " LEFT JOIN " . $wpdb->prefix . "terms" . " ON " . $wpdb->prefix . "terms.term_id = " . $wpdb->prefix . "term_taxonomy.term_id" . " WHERE term_taxonomy_id = " . intval($taxId->term_taxonomy_id));
 
                             if (!in_array($term, $filters)) {
