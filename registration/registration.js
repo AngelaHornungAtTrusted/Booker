@@ -2,6 +2,10 @@
   let $form;
   const pageInit = function(){
     $form = $('#booker-registration-form');
+
+    console.log(LOCATIONID);
+
+    $('#eventId').val(EVENTID);
     handleRegistrationForm();
   }
 

@@ -31,13 +31,14 @@ function wp_ajax_br_init_registrations()
     try {
         $charset_collate = $wpdb->get_charset_collate();
 
-        $itemTables = "CREATE TABLE booker_registrations (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        $itemTables = "CREATE TABLE " . BR_REGISTRATIONS_TABLE . "(
+        id int(9) NOT NULL AUTO_INCREMENT,
         fname varchar(255) DEFAULT '' NOT NULL,
         lname varchar(255) DEFAULT '' NOT NULL,
-        pcount mediumint(9) NOT NULL,
+        pcount int(9) NOT NULL,
         email varchar(255) DEFAULT '' NOT NULL,
-        pnumber mediumint(9) NOT NULL,
+        pnumber int(9) NOT NULL,
+        event_id int(9) NOT NULL,
         approved tinyint(1) NOT NULL DEFAULT '0',
         create_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
         update_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
@@ -115,7 +116,7 @@ function wp_ajax_br_get_events()
             $filters = array();
             $thumbnails = array();
 
-            //todo remove need for $times variable
+            //todo remove need for $times variable and clean up a bit
             $times = 0;
             $conditional = "";
             $conditions = array(intval($_GET['data']['location']), intval($_GET['data']['type']), intval($_GET['data']['category']));
@@ -126,13 +127,15 @@ function wp_ajax_br_get_events()
                 }
             }
 
-            //todo format posted dates from js then run comparison, if date values are 0 (set them to this by default), then only load events today and after
             foreach (array_count_values(array_column($wpdb->get_results("SELECT object_id FROM " . $wpdb->prefix . "term_relationships" . $conditional), 'object_id')) as $key => $count) {
+                //ensure all required associations are met
                 if ($count >= $times && sizeof($wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts WHERE post_type = 'event' AND post_status = 'publish' AND id = " . intval($key))) > 0) {
                     $date = date($wpdb->get_results("SELECT meta_value FROM " . $wpdb->prefix . "postmeta WHERE post_id = " . intval($key) . " AND meta_key = 'booker-event-meta-date'")[0]->meta_value);
+                    //ensure event date fits within defined date range
                     if ($date >= date($_GET['data']['sDate']) && $date <= date($_GET['data']['eDate'])) {
                         $posts[$key] = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts" . " LEFT JOIN " . $wpdb->prefix . "postmeta" . " ON " . $wpdb->prefix . "postmeta" . ".post_id = " . $wpdb->prefix . "posts" . ".id WHERE post_type = 'event' AND post_status = 'publish' AND meta_key = '_thumbnail_id' AND id = " . intval($key));
                         $thumbnails[$key] = get_site_url() . '/wp-content/uploads/' . $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "postmeta" . " WHERE meta_key = '_wp_attached_file' AND post_id = " . intval($posts[$key][0]->meta_value))[0]->meta_value;
+                        //grab and determine which filters to return
                         foreach ($wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "term_relationships WHERE " . $wpdb->prefix . "term_relationships.object_id = " . intval($key)) as $taxId) {
                             $term = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "term_taxonomy" . " LEFT JOIN " . $wpdb->prefix . "terms" . " ON " . $wpdb->prefix . "terms.term_id = " . $wpdb->prefix . "term_taxonomy.term_id" . " WHERE term_taxonomy_id = " . intval($taxId->term_taxonomy_id));
 
@@ -166,8 +169,25 @@ function wp_ajax_br_registration()
     $response = new stdClass();
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        var_dump($_POST['data']);
-        die();
+
+        $success = $wpdb->insert(
+            BR_REGISTRATIONS_TABLE,
+            array(
+                'fname' => sanitize_text_field($_POST['data']['firstName']),
+                'lname' => sanitize_text_field($_POST['data']['lastName']),
+                'pcount' => intval($_POST['data']['partyCount']),
+                'email' => sanitize_email($_POST['data']['email']),
+                'pnumber' => intval($_POST['data']['number']),
+                'event_id' => intval($_POST['data']['eventId']),
+                'approved' => 0,
+                'create_date' => gmdate("Y-m-d H:i:s"),
+                'update_date' => gmdate("Y-m-d H:i:s")
+            )
+        );
+
+        $response->code = ($success === false) ? 500 : 200;
+        $response->status = ($success === false) ? 'error' : 'success';
+        $response->message = ($success === false) ? "Registration Failed" : "Registration Successful";
     } else {
         $response->code = 400;
         $response->message = "Invalid Request";

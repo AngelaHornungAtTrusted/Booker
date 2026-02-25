@@ -1,15 +1,18 @@
 <?php
 wp_enqueue_script('registration-js', BR_REGISTRATION_URL . '/registration.js', array('jquery'));
+
+echo "Location ID: " . $locationId;
 ?>
 <script>
   BR_AJAX_URL = '<?php echo esc_url(admin_url('admin-ajax.php', 'relative')); ?>'
+  EVENTID = '<?php echo $eventId; ?>'
 </script>
 <h2>Event Registration Form</h2>
-<form class="form" id="booker-registration-form">
+<form class="form booker-registration-form" id="booker-registration-form">
     <div class="row">
         <div class="col-md-4">
                 <label for="firstName">First Name</label>
-                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter first name" minlength="5"
+                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter first name" minlength="2"
                        required aria-required="true">
         </div>
         <div class="col-md-4">
@@ -33,6 +36,8 @@ wp_enqueue_script('registration-js', BR_REGISTRATION_URL . '/registration.js', a
             <label for="phone">Phone</label>
             <input type="number" class="form-control" name="number" id="phone" placeholder="Enter Phone number" required
                    aria-required="true">
+            <label for="eventId" hidden>Event ID</label>
+            <input type="number" class="form-control" name="eventId" id="eventId" placeholder="Enter event ID" hidden>
         </div>
         <div class="col-md-2">
             <button type="submit" class="btn btn-primary" style="margin-top: 20px;" id="booker-submit">Register

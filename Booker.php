@@ -49,8 +49,8 @@ add_action('add_meta_boxes', 'booker_add_meta_boxes');
 
 function booker_add_meta_boxes() {
     add_meta_box(
-            'booker_event_date',
-            'booker-event-meta-date',
+            'booker_event_meta',
+            'booker-event-meta',
             'booker_event_meta_box',
             'event',
             'normal',
@@ -60,13 +60,18 @@ function booker_add_meta_boxes() {
 
 function booker_event_meta_box () {
     global $post;
-    $meta = get_post_meta( $post->ID, 'booker-event-meta-date', true );
+    $date = get_post_meta( $post->ID, 'booker-event-meta-date', true );
+    $registration = get_post_meta( $post->ID, 'booker-event-registration', true );
     ?>
         <div class="row">
             <div class="col-md-4">
                 <input type="hidden" name="booker_meta_box_nonce" value="<?php echo wp_create_nonce( basename(__FILE__) ); ?>">
                 <label for="booker-event-meta-date">Event Date</label>
-                <input type="date" id="booker-event-meta-date" style="margin-left: 15px; margin-right: 15px;" name="booker-event-meta-date" required value="<?php echo $meta; ?>">
+                <input type="date" id="booker-event-meta-date" style="margin-left: 15px; margin-right: 15px;" name="booker-event-meta-date" required value="<?php echo $date; ?>">
+            </div>
+            <div class="col-md-4">
+                <label for="booker-event-meta-registration">Require Registration</label>
+                <input type="checkbox" name="booker-event-meta-registration" id="booker-event-meta-registration" value="<?php echo $registration; ?>">
             </div>
         </div>
         <?php
@@ -105,9 +110,6 @@ add_action( 'save_post', 'save_your_fields_meta' );
 add_filter('the_content', 'booker_append_registration', 20);
 
 function booker_append_registration($content) {
-    /* todo, stop from appending on every single page/plugin */
-    $post_type = "event";
-
     if (is_singular('event') && in_the_loop() && is_main_query()) {
         /* Bootstrap */
         wp_enqueue_style('bootstrap-css', PP_ASSETS_URL . '/bootstrap/css/bootstrap.css"');
@@ -120,6 +122,7 @@ function booker_append_registration($content) {
         wp_enqueue_style('toastr-css', PP_ASSETS_URL . '/toastr/build/toastr.css');
         wp_enqueue_script('toastr-js', PP_ASSETS_URL . '/toastr/build/toastr.min.js');
 
+        $eventId = intval(get_the_ID());
         return $content . include(plugin_dir_path(__FILE__) . 'registration/registration.php');
     }
 
