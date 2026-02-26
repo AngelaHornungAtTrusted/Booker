@@ -1,7 +1,5 @@
 <?php
 wp_enqueue_script('registration-js', BR_REGISTRATION_URL . '/registration.js', array('jquery'));
-
-echo "Location ID: " . $locationId;
 ?>
 <script>
   BR_AJAX_URL = '<?php echo esc_url(admin_url('admin-ajax.php', 'relative')); ?>'
@@ -45,3 +43,4 @@ echo "Location ID: " . $locationId;
         </div>
     </div>
 </form>
+<p>This event requires online registration prior to attendance.</p>

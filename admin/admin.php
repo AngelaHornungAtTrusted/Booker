@@ -18,6 +18,10 @@
         <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact"
                 type="button" role="tab" aria-controls="Contact" aria-selected="false">Contact</button>
     </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="registration-tab" data-bs-toggle="tab" data-bs-target="#registration"
+                type="button" role="tab" aria-controls="Registration" aria-selected="false">Registration</button>
+    </li>
 </ul>
 <div class="tab-content" id="adminTabsContent">
     <div class="tab-pane fade show active" id="wpbakery" role="tabpanel" aria-labelledby="wpbakery-tab">
@@ -30,5 +34,9 @@
     <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
         <?php include( plugin_dir_path( __FILE__ ) . 'partial/contact/contact.php' ); ?>
         <?php wp_enqueue_script('contact-js', BR_ADMIN_URL . '/partial/contact/contact.js', array('jquery')); ?>
+    </div>
+    <div class="tab-pane fade" id="registration" role="tabpanel" aria-labelledby="registration-tab">
+        <?php include( plugin_dir_path( __FILE__ ) . 'partial/registration/registration.php' ); ?>
+        <?php wp_enqueue_script('admin-registration-js', BR_ADMIN_URL . '/partial/registration/registration.js', array('jquery')); ?>
     </div>
 </div>

@@ -196,13 +196,62 @@ function wp_ajax_br_registration()
     wp_send_json($response);
 }
 
+function wp_ajax_br_manage_registration()
+{
+    global $wpdb;
+    $response = new stdClass();
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        try {
+            if ($_POST['data']['type'] !== 'delete') {
+                $wpdb->update(BR_REGISTRATIONS_TABLE, array(
+                    'approved' => (($_POST['data']['type'] === 'approve') ? 1 : 0)
+                ),
+                    array(
+                        'id' => intval($_POST['data']['registration_id']),
+                    )
+                );
+                $response->message = ($_POST['data']['type'] === 'approve') ? "Registration Approved" : "Registration Unapproved";
+            } else {
+                $wpdb->delete(BR_REGISTRATIONS_TABLE, array(
+                    'id' => $_POST['data']['registration_id']
+                ));
+                $response->message = "Registration Removed";
+            }
+
+            $response->code = 200;
+            $response->status = 'success';
+        } catch (\Exception $e) {
+            $response->code = 400;
+            $response->message = $e->getMessage();
+        }
+    } else {
+        $response->code = 400;
+        $response->message = "Invalid Request";
+    }
+
+    wp_send_json($response);
+}
+
 function wp_ajax_br_get_registrations()
 {
     global $wpdb;
     $response = new stdClass();
 
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+        try {
+            $conditional = (intval($_GET['data']) > 0) ? " WHERE event_id = " . intval($_GET['data']) : "";
+            $registrations = $wpdb->get_results("SELECT * FROM " . BR_REGISTRATIONS_TABLE . $conditional);
 
+            $response->code = 200;
+            $response->status = 'success';
+            $response->data = $registrations;
+            $response->message = "Got Events";
+        } catch (\Exception $e) {
+            $response->code = 400;
+            $response->message = $e->getMessage();
+            $response->status = 'error';
+        }
     } else {
         $response->code = 400;
         $response->message = "Invalid Request";
