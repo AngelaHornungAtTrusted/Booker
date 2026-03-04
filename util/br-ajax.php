@@ -107,6 +107,7 @@ function wp_ajax_br_update_labels()
 function wp_ajax_br_get_events()
 {
     $response = new stdClass();
+
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         global $wpdb;
 
@@ -185,6 +186,17 @@ function wp_ajax_br_registration()
             )
         );
 
+        /*if ($success !== false) {
+            //notify site administrator & registrant
+            try {
+                //todo set up nice looking email bodies
+                br_email(sanitize_email($_POST['data']['email']), 'Event Registration', 'Your registration is now awaiting approval');
+                br_email(get_option('admin_email'), 'Event Registration', 'Someone registered for you event');
+            } catch (\Exception $e) {
+                //todo figure this out
+            }
+        }*/
+
         $response->code = ($success === false) ? 500 : 200;
         $response->status = ($success === false) ? 'error' : 'success';
         $response->message = ($success === false) ? "Registration Failed" : "Registration Successful";
@@ -251,6 +263,37 @@ function wp_ajax_br_get_registrations()
             $response->code = 400;
             $response->message = $e->getMessage();
             $response->status = 'error';
+        }
+    } else {
+        $response->code = 400;
+        $response->message = "Invalid Request";
+    }
+
+    wp_send_json($response);
+}
+
+/* internal functions only */
+function br_email($to, $subject, $body) {
+    try {
+        return wp_mail($to, $subject, $body);
+    } catch (\Exception $e) {
+        return $e->getMessage();
+    }
+}
+function wp_ajax_br_email_notification()
+{
+    global $wpdb;
+    $response = new stdClass();
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        try {
+            $status = wp_mail('angelahornung@icloud.com', 'Booker Registration', 'Registration Occurred');
+
+            $response->code = 200;
+            $response->status = $status;
+        } catch (\Exception $e) {
+            $response->code = 400;
+            $response->message = $e->getMessage();
         }
     } else {
         $response->code = 400;

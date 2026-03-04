@@ -7,7 +7,7 @@ define('BR_PLUGIN_SLUG', 'booker');
 define('BR_ROOT_DIR_NAME', 'booker');
 define('BR_ROOT_DIR_PATH', plugin_dir_path(__FILE__));
 define('BR_ADMIN_DIR_PATH', BR_ROOT_DIR_PATH . 'admin');
-define('BR_ASSETS_DIR_PATH', PP_ROOT_DIR_PATH . 'assets');
+define('BR_ASSETS_DIR_PATH', BR_ROOT_DIR_PATH . 'assets');
 define('BR_SHORTCODE_DIR_PATH', BR_ROOT_DIR_PATH . 'shortcode');
 define('BR_UTIL_DIR_PATH', BR_ROOT_DIR_PATH . 'util');
 define('BR_REGISTRATION_DIR_PATH', BR_ROOT_DIR_PATH . 'registration');
@@ -15,7 +15,7 @@ define('BR_REGISTRATION_DIR_PATH', BR_ROOT_DIR_PATH . 'registration');
 /* Global Directory Urls */
 define('BR_ROOT_DIR_URL', plugin_dir_url(__FILE__));
 define('BR_ADMIN_URL', BR_ROOT_DIR_URL . 'admin');
-define('BR_ASSETS_URL', PP_ROOT_DIR_URL . 'assets');
+define('BR_ASSETS_URL', BR_ROOT_DIR_URL . 'assets');
 define('BR_SHORTCODE_URL', BR_ROOT_DIR_URL . 'shortcode');
 define('BR_UTIL_URL', BR_ROOT_DIR_URL . 'util');
 define('BR_REGISTRATION_URL', BR_ROOT_DIR_URL . 'registration');

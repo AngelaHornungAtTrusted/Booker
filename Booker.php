@@ -23,6 +23,7 @@ add_action('wp_ajax_br_registration', 'wp_ajax_br_registration');
 add_action('wp_ajax_nopriv_br_registration', 'wp_ajax_br_registration');
 add_action('wp_ajax_br_get_registrations', 'wp_ajax_br_get_registrations');
 add_action('wp_ajax_br_manage_registration', 'wp_ajax_br_manage_registration');
+add_action('wp_ajax_br_email_notification', 'wp_ajax_br_email_notification');
 
 /* Initialize Booker table requirements upon plugin activation */
 register_activation_hook(__FILE__, 'booker_activate');
@@ -83,7 +84,6 @@ function booker_event_meta_box()
     <?php
 }
 
-//todo get booker-event-meta-registration to update in the db, then utilize the field to determine whether or not to append the registrations form, after which add registration management and emails
 function save_your_fields_meta($post_id)
 {
     if (wp_verify_nonce($_POST['booker_meta_box_nonce'], basename(__FILE__))) {
@@ -104,15 +104,15 @@ function booker_append_registration($content)
     if (is_singular('event') && in_the_loop() && is_main_query()) {
         if (intval(get_post_meta(intval(get_the_ID()), 'booker-event-meta-registration', true)) > 0) {
             /* Bootstrap */
-            wp_enqueue_style('bootstrap-css', PP_ASSETS_URL . '/bootstrap/css/bootstrap.css"');
-            wp_enqueue_script('bootstrap-js', PP_ASSETS_URL . '/bootstrap/js/bootstrap.js"');
+            wp_enqueue_style('bootstrap-css', BR_ASSETS_URL . '/bootstrap/css/bootstrap.css"');
+            wp_enqueue_script('bootstrap-js', BR_ASSETS_URL . '/bootstrap/js/bootstrap.js"');
 
             /* jQuery Validate */
-            wp_enqueue_script('jquery-validate', PP_ASSETS_URL . '/validate/jquery.validate.min.js');
+            wp_enqueue_script('jquery-validate', BR_ASSETS_URL . '/validate/jquery.validate.min.js');
 
             /* Toastr.js */
-            wp_enqueue_style('toastr-css', PP_ASSETS_URL . '/toastr/build/toastr.css');
-            wp_enqueue_script('toastr-js', PP_ASSETS_URL . '/toastr/build/toastr.min.js');
+            wp_enqueue_style('toastr-css', BR_ASSETS_URL . '/toastr/build/toastr.css');
+            wp_enqueue_script('toastr-js', BR_ASSETS_URL . '/toastr/build/toastr.min.js');
 
             $eventId = intval(get_the_ID());
             $content . include(plugin_dir_path(__FILE__) . 'registration/registration.php');
@@ -162,8 +162,8 @@ function br_shortcode($atts = [], $content = null): void
         $style = intval($atts[5]);
 
         //todo fix so not needed in two places
-        wp_enqueue_style('bootstrap-css', PP_ASSETS_URL . '/bootstrap/css/bootstrap.css"');
-        wp_enqueue_script('bootstrap-js', PP_ASSETS_URL . '/bootstrap/js/bootstrap.js"');
+        wp_enqueue_style('bootstrap-css', BR_ASSETS_URL . '/bootstrap/css/bootstrap.css"');
+        wp_enqueue_script('bootstrap-js', BR_ASSETS_URL . '/bootstrap/js/bootstrap.js"');
         ?>
         <div class="wrap">
             <?php include(plugin_dir_path(__FILE__) . 'shortcode/shortcode.php'); ?>

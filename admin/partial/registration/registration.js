@@ -1,5 +1,6 @@
 (function ($) {
   let $eventSelect, $registrationTable, $export;
+  let registrations;  //used for export
 
   const pageInit = function () {
     $eventSelect = $('#event-select');
@@ -45,6 +46,7 @@
       data: $eventSelect.val()
     }, function (response) {
       if (response.status === 'success') {
+        registrations = response.data;
         buildRegistrationsTable(response.data);
       } else {
         toastr.error(response.message);
@@ -101,26 +103,12 @@
     });
   };
 
-  const exportData = function () {
-    $.get(BR_AJAX_URL, {
-      action: "br_get_registrations",
-    }, function (response) {
-      if (response.status === 'success') {
-        toastr.success(response.message);
-        buildCSV(response.data);
-      } else {
-        toastr.error(response.message);
-      }
-    })
-  }
-
-  const buildCSV = function(regs) {
+  const exportData = function() {
     let csvContent = "data:text/csv;charset=utf-8,";
 
     //registration section
     csvContent += "Registrations \r\n First Name, Last Name, Party Count, Email, Phone Number, Event ID, Approved, Registration Date \r\n";
-    $.each(regs, function(key, reg){
-      console.log(reg);
+    $.each(registrations, function(key, reg){
       csvContent += reg.fname + "," + reg.lname + "," + reg.pcount + "," + reg.email + "," + reg.pnumber + "," + reg.event_id + "," + reg.approved + "," + reg.create_date + "\r\n";
     });
 

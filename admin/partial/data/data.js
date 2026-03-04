@@ -21,7 +21,6 @@
             action: 'br_get_labels',
         }, function (response) {
             if (response.status === 'success') {
-                console.log(response.data);
                 manageLabels(response.data);
             } else {
                 toastr.error(response.message);
