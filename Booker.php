@@ -23,7 +23,7 @@ add_action('wp_ajax_br_registration', 'wp_ajax_br_registration');
 add_action('wp_ajax_nopriv_br_registration', 'wp_ajax_br_registration');
 add_action('wp_ajax_br_get_registrations', 'wp_ajax_br_get_registrations');
 add_action('wp_ajax_br_manage_registration', 'wp_ajax_br_manage_registration');
-add_action('wp_ajax_br_email_notification', 'wp_ajax_br_email_notification');
+add_action('wp_ajax_br_test_email_notification', 'wp_ajax_br_test_email_notification');
 
 /* Initialize Booker table requirements upon plugin activation */
 register_activation_hook(__FILE__, 'booker_activate');
@@ -44,7 +44,6 @@ function booker_event_init(): void
 
     register_taxonomy('BookerLocation', 'event', BR_POST_LOCATION_TAXONOMY_ARGS);
     register_taxonomy('BookerType', 'event', BR_POST_TYPE_TAXONOMY_ARGS);
-    //register_taxonomy('BookerDate', 'event', BR_POST_DATE_TAXONOMY_ARGS);
     register_taxonomy('BookerCategory', 'event', BR_POST_CATEGORY_TAXONOMY_ARGS);
 }
 
@@ -73,12 +72,13 @@ function booker_event_meta_box()
                    value="<?php echo wp_create_nonce(basename(__FILE__)); ?>">
             <label for="booker-event-meta-date">Event Date</label>
             <input type="date" id="booker-event-meta-date" style="margin-left: 15px; margin-right: 15px;"
-                   name="booker-event-meta-date" required value="<?php echo get_post_meta($post->ID, 'booker-event-meta-date', true); ?>">
+                   name="booker-event-meta-date" required
+                   value="<?php echo get_post_meta($post->ID, 'booker-event-meta-date', true); ?>">
         </div>
         <div class="col-md-4">
             <label for="booker-event-meta-registration">Require Registration</label>
             <input type="checkbox" name="booker-event-meta-registration" id="booker-event-meta-registration"
-                   <?php echo (intval(get_post_meta($post->ID, 'booker-event-meta-registration', true) > 0)) ? "checked" : ""; ?>/>
+                    <?php echo (intval(get_post_meta($post->ID, 'booker-event-meta-registration', true) > 0)) ? "checked" : ""; ?>/>
         </div>
     </div>
     <?php
@@ -104,8 +104,8 @@ function booker_append_registration($content)
     if (is_singular('event') && in_the_loop() && is_main_query()) {
         if (intval(get_post_meta(intval(get_the_ID()), 'booker-event-meta-registration', true)) > 0) {
             /* Bootstrap */
-            wp_enqueue_style('bootstrap-css', BR_ASSETS_URL . '/bootstrap/css/bootstrap.css"');
-            wp_enqueue_script('bootstrap-js', BR_ASSETS_URL . '/bootstrap/js/bootstrap.js"');
+            wp_enqueue_style('bootstrap-css', BR_ASSETS_URL . '/style/bootstrap/css/booker-bootstrap.css');
+            wp_enqueue_script('bootstrap-js', BR_ASSETS_URL . '/style/bootstrap/js/bootstrap.js');
 
             /* jQuery Validate */
             wp_enqueue_script('jquery-validate', BR_ASSETS_URL . '/validate/jquery.validate.min.js');
@@ -141,8 +141,14 @@ function booker_admin_menu()
 function booker_admin_page()
 {
     ?>
-    <div class="wrap">
-        <?php include(plugin_dir_path(__FILE__) . 'admin/admin.php'); ?>
+    <div class="booker-wrapper">
+        <div class="container">
+            <div class="row">
+                <?php wp_enqueue_style('bootstrap-css', BR_ASSETS_URL . '/style/bootstrap/css/booker-bootstrap.css'); ?>
+                <?php wp_enqueue_script('bootstrap-js', BR_ASSETS_URL . '/style/bootstrap/js/bootstrap.js'); ?>
+                <?php include(plugin_dir_path(__FILE__) . 'admin/admin.php'); ?>
+            </div>
+        </div>
     </div>
     <?php
 }
@@ -160,14 +166,16 @@ function br_shortcode($atts = [], $content = null): void
         $categoryId = intval($atts[3]);
         $hideSelect = intval($atts[4]);
         $style = intval($atts[5]);
-
-        //todo fix so not needed in two places
-        wp_enqueue_style('bootstrap-css', BR_ASSETS_URL . '/bootstrap/css/bootstrap.css"');
-        wp_enqueue_script('bootstrap-js', BR_ASSETS_URL . '/bootstrap/js/bootstrap.js"');
         ?>
-        <div class="wrap">
-            <?php include(plugin_dir_path(__FILE__) . 'shortcode/shortcode.php'); ?>
-            <?php wp_enqueue_script('shortcode-js', BR_SHORTCODE_URL . '/shortcode.js"', array('jquery')); ?>
+        <div class="booker-wrapper">
+            <div class="container">
+                <div class="row">
+                    <?php wp_enqueue_style('bootstrap-css', BR_ASSETS_URL . '/style/bootstrap/css/booker-bootstrap.css'); ?>
+                    <?php wp_enqueue_script('bootstrap-js', BR_ASSETS_URL . '/style/bootstrap/js/bootstrap.js'); ?>
+                    <?php include(plugin_dir_path(__FILE__) . 'shortcode/shortcode.php'); ?>
+                    <?php wp_enqueue_script('shortcode-js', BR_SHORTCODE_URL . '/shortcode.js"', array('jquery')); ?>
+                </div>
+            </div>
         </div>
         <?php
     } else {

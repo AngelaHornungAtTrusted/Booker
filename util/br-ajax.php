@@ -186,22 +186,23 @@ function wp_ajax_br_registration()
             )
         );
 
-        /*if ($success !== false) {
+        if ($success !== false) {
             //notify site administrator & registrant
             try {
                 //todo set up nice looking email bodies
                 br_email(sanitize_email($_POST['data']['email']), 'Event Registration', 'Your registration is now awaiting approval');
                 br_email(get_option('admin_email'), 'Event Registration', 'Someone registered for you event');
             } catch (\Exception $e) {
-                //todo figure this out
+                $success = false;
             }
-        }*/
+        }
 
         $response->code = ($success === false) ? 500 : 200;
         $response->status = ($success === false) ? 'error' : 'success';
-        $response->message = ($success === false) ? "Registration Failed" : "Registration Successful";
+        $response->message = ($success === false) ? "Registration Process Failed" : "Registration Successful";
     } else {
         $response->code = 400;
+        $response->status = 'error';
         $response->message = "Invalid Request";
     }
 
@@ -216,23 +217,45 @@ function wp_ajax_br_manage_registration()
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         try {
             if ($_POST['data']['type'] !== 'delete') {
-                $wpdb->update(BR_REGISTRATIONS_TABLE, array(
+                $success = $wpdb->update(BR_REGISTRATIONS_TABLE, array(
                     'approved' => (($_POST['data']['type'] === 'approve') ? 1 : 0)
                 ),
                     array(
                         'id' => intval($_POST['data']['registration_id']),
                     )
                 );
-                $response->message = ($_POST['data']['type'] === 'approve') ? "Registration Approved" : "Registration Unapproved";
+
+                if ($success !== false) {
+                    //notify registrant
+                    try {
+                        //todo set up nice looking email bodies
+                        br_email(sanitize_email($_POST['data']['email']), 'Event Registration', (($_POST['data']['type'] === 'approve') ? "Registration Approved" : "Registration Denied"));
+                    } catch (\Exception $e) {
+                        $success = false;
+                    }
+                }
+
+                $response->message = ($_POST['data']['type'] === 'approve') ? "Registration Approved" : "Registration Denied";
             } else {
-                $wpdb->delete(BR_REGISTRATIONS_TABLE, array(
+                $success = $wpdb->delete(BR_REGISTRATIONS_TABLE, array(
                     'id' => $_POST['data']['registration_id']
                 ));
-                $response->message = "Registration Removed";
+
+                if ($success !== false) {
+                    //notify registrant
+                    try {
+                        //todo set up nice looking email bodies
+                        br_email(sanitize_email($_POST['data']['email']), 'Event Registration', "Registration Deleted");
+                    } catch (\Exception $e) {
+                        $success = false;
+                    }
+                }
+
+                $response->message = ($success !== false) ? "Registration Deleted" : "Registration Deletion Process Failed";
             }
 
-            $response->code = 200;
-            $response->status = 'success';
+            $response->code = ($success !== false) ? 200 : 500;
+            $response->status = ($success !== false) ? 'success' : 'error';
         } catch (\Exception $e) {
             $response->code = 400;
             $response->message = $e->getMessage();
@@ -245,6 +268,7 @@ function wp_ajax_br_manage_registration()
     wp_send_json($response);
 }
 
+//requires wpsmtp not to go to junk by default atm
 function wp_ajax_br_get_registrations()
 {
     global $wpdb;
@@ -273,14 +297,11 @@ function wp_ajax_br_get_registrations()
 }
 
 /* internal functions only */
-function br_email($to, $subject, $body) {
-    try {
-        return wp_mail($to, $subject, $body);
-    } catch (\Exception $e) {
-        return $e->getMessage();
-    }
+function br_email($to, $subject, $body)
+{
+    return wp_mail($to, $subject, $body);
 }
-function wp_ajax_br_email_notification()
+function wp_ajax_br_test_email_notification()
 {
     global $wpdb;
     $response = new stdClass();
